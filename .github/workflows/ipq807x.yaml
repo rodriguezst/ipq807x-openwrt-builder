@@ -1,0 +1,120 @@
+name: Build remote repo only if new commits were pushed
+on:
+  workflow_dispatch:
+  push:
+  schedule:
+    - cron: '0 7 * * *'
+jobs:
+  check:
+    name: Check remote repo for new commits
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use GitHub API to poll commits
+        run: |
+          curl -sL "https://api.github.com/repos/$REMOTE_REPOSITORY/commits?sha=$REMOTE_BRANCH&per_page=1" | jq -r '[.[]][0]' > commit.json
+        env:
+          REMOTE_REPOSITORY: robimarko/openwrt
+          REMOTE_BRANCH: IPQ807x-5.10-backports
+      - name: Calculate hours since last commit
+        id: calc
+        run: |
+          date="$(jq -r '.commit.author.date' commit.json)"
+          timestamp=$(date --utc -d "$date" +%s)
+          hours=$(( ( $(date --utc +%s) - $timestamp ) / 3600 ))
+          echo "Last commit date: $date"
+          echo "Hours since last commit: $hours"
+          echo "::set-output name=commit_age::$hours"
+    outputs:
+      commit_age: ${{ steps.calc.outputs.commit_age }}
+  build:
+    name: Build the remote repository
+    needs: check
+    runs-on: ubuntu-latest
+    if: ${{ needs.check.outputs.commit_age <= 24 || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Show inputs received from previous job
+        env:
+          COMMIT_AGE: ${{ needs.check.outputs.commit_age }}
+        run: |
+          echo "Build triggered with commits last pushed $COMMIT_AGE hours ago"
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: robimarko/openwrt
+          ref: IPQ807x-5.10-backports
+      - name: Update and install feeds
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+      - name: Generate config for IPQ807x Generic
+        run: |
+          echo "CONFIG_TARGET_ipq807x=y" > .config
+          echo "CONFIG_TARGET_ipq807x_generic=y\n" >> .config
+          echo "CONFIG_TARGET_MULTI_PROFILE=y\n" >> .config
+          echo "CONFIG_TARGET_ALL_PROFILES=y\n" >> .config
+          echo "CONFIG_TARGET_PER_DEVICE_ROOTFS=y\n" >> .config
+          echo "CONFIG_TARGET_ROOTFS_INITRAMFS=y\n" >> .config
+          echo "CONFIG_TARGET_INITRAMFS_COMPRESSION_ZSTD=y\n" >> .config
+          echo "CONFIG_PACKAGE_luci=y\n" >> .config
+          echo "CONFIG_PACKAGE_nss-firmware-ipq8074=y\n" >> .config
+          echo "CONFIG_PACKAGE_kmod-qca-nss-drv-pppoe=y\n" >> .config
+          echo "CONFIG_PACKAGE_kmod-qca-nss-ecm=y\n" >> .config
+          echo "CONFIG_PACKAGE_kmod-qca-nss-drv-bridge-mgr=y\n" >> .config
+          echo "CONFIG_PACKAGE_luci-app-openvpn=y" >> .config
+          echo "CONFIG_PACKAGE_luci-app-wireguard=y" >> .config
+          echo "CONFIG_PACKAGE_openvpn-openssl=y" >> .config
+          echo "CONFIG_PACKAGE_wireguard=y" >> .config
+          make defconfig
+      - name: Enable WiFi on default config
+        run: |
+          mkdir -p files/etc/uci-defaults
+          cat > files/etc/uci-defaults/xxx_config << EOF
+          uci set wireless.radio1.disabled=0
+          uci commit
+          EOF
+      - name: Download package sources
+        run: make download V=s
+      - name: Build tools
+        run: |
+          make tools/install -j$(nproc) V=s || \
+          make tools/install V=s
+      - name: Build toolchain
+        run: |
+          make toolchain/install -j$(nproc) V=s || \
+          make toolchain/install V=s
+      - name: Build target images
+        run: |
+          make -j$(nproc) V=s || \
+          make V=s
+      - name: TAR output
+        run: tar -cvf ipq807xx-images.tar bin/targets/ipq807x/generic
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ipq807x-images
+          path: ipq807xx-images.tar
+  release:
+    name: Upload artifacts as release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download the image artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: ipq807x-images
+      - name: Extract the image artifacts
+        run: tar xf ipq807xx-images.tar
+      - name: Extract version information from version.buildinfo
+        run: >-
+          echo "BUILDINFO=$(cat bin/targets/ipq807x/generic/version.buildinfo)"
+          >> $GITHUB_ENV
+      - name: Create a release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: '${{ secrets.GITHUB_TOKEN }}'
+          prerelease: true
+          title: 'Updated prebuilt images (${{ env.BUILDINFO }})'
+          automatic_release_tag: ipq807x-latest
+          files: bin/targets/ipq807x/generic/*
+     
