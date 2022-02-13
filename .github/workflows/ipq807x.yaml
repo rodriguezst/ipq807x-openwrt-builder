@@ -1,4 +1,4 @@
-name: Build remote repo only if new commits were pushed
+name: ipq807x-5.15 - Build remote repo only if new commits were pushed
 on:
   workflow_dispatch:
   push:
@@ -14,7 +14,7 @@ jobs:
           curl -sL "https://api.github.com/repos/$REMOTE_REPOSITORY/commits?sha=$REMOTE_BRANCH&per_page=1" | jq -r '[.[]][0]' > commit.json
         env:
           REMOTE_REPOSITORY: robimarko/openwrt
-          REMOTE_BRANCH: IPQ807x-5.10-backports
+          REMOTE_BRANCH: ipq807x-5.15
       - name: Calculate hours since last commit
         id: calc
         run: |
@@ -41,7 +41,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: robimarko/openwrt
-          ref: IPQ807x-5.10-backports
+          ref: ipq807x-5.15
       - name: Update and install feeds
         run: |
           ./scripts/feeds update -a
@@ -57,9 +57,10 @@ jobs:
           echo "CONFIG_TARGET_INITRAMFS_COMPRESSION_ZSTD=y\n" >> .config
           echo "CONFIG_PACKAGE_luci=y\n" >> .config
           echo "CONFIG_PACKAGE_nss-firmware-ipq8074=y\n" >> .config
-          echo "CONFIG_PACKAGE_kmod-qca-nss-drv-pppoe=y\n" >> .config
-          echo "CONFIG_PACKAGE_kmod-qca-nss-ecm=y\n" >> .config
-          echo "CONFIG_PACKAGE_kmod-qca-nss-drv-bridge-mgr=y\n" >> .config
+          echo "CONFIG_PACKAGE_kmod-qca-nss-dp=y" >> .config
+          #echo "CONFIG_PACKAGE_kmod-qca-nss-drv-pppoe=y\n" >> .config
+          #echo "CONFIG_PACKAGE_kmod-qca-nss-ecm=y\n" >> .config
+          #echo "CONFIG_PACKAGE_kmod-qca-nss-drv-bridge-mgr=y\n" >> .config
           echo "CONFIG_PACKAGE_luci-app-openvpn=y" >> .config
           echo "CONFIG_PACKAGE_luci-app-wireguard=y" >> .config
           echo "CONFIG_PACKAGE_luci-app-ddns=y" >> .config
@@ -116,6 +117,6 @@ jobs:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
           prerelease: true
           title: 'Updated prebuilt images (${{ env.BUILDINFO }})'
-          automatic_release_tag: ipq807x-latest
+          automatic_release_tag: ipq807x-5.15-latest
           files: bin/targets/ipq807x/generic/*
      
