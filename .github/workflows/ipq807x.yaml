@@ -18,7 +18,7 @@ jobs:
       - name: Calculate hours since last commit
         id: calc
         run: |
-          date="$(jq -r '.commit.author.date' commit.json)"
+          date="$(jq -r '.commit.committer.date' commit.json)"
           timestamp=$(date --utc -d "$date" +%s)
           hours=$(( ( $(date --utc +%s) - $timestamp ) / 3600 ))
           echo "Last commit date: $date"
