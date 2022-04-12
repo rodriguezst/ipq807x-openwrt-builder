@@ -66,6 +66,7 @@ jobs:
           echo "CONFIG_PACKAGE_luci-app-ddns=y" >> .config
           echo "CONFIG_PACKAGE_openvpn-openssl=y" >> .config
           echo "CONFIG_PACKAGE_wireguard=y" >> .config
+          echo "CONFIG_PACKAGE_qrencode=y" >> .config
           make defconfig
       - name: Enable WiFi on default config
         run: |
