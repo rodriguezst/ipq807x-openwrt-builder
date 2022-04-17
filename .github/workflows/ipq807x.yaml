@@ -67,6 +67,8 @@ jobs:
           echo "CONFIG_PACKAGE_openvpn-openssl=y" >> .config
           echo "CONFIG_PACKAGE_wireguard=y" >> .config
           echo "CONFIG_PACKAGE_qrencode=y" >> .config
+          echo "CONFIG_PACKAGE_wpad-basic-wolfssl=m\n" >> .config
+          echo "CONFIG_PACKAGE_wpad-wolfssl=y\n" >> .config
           make defconfig
       - name: Enable WiFi on default config
         run: |
