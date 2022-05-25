@@ -14,7 +14,7 @@ jobs:
           curl -sL "https://api.github.com/repos/$REMOTE_REPOSITORY/commits?sha=$REMOTE_BRANCH&per_page=1" | jq -r '[.[]][0]' > commit.json
         env:
           REMOTE_REPOSITORY: robimarko/openwrt
-          REMOTE_BRANCH: ipq807x-5.15
+          REMOTE_BRANCH: ipq807x-5.15-pr
       - name: Calculate hours since last commit
         id: calc
         run: |
@@ -41,7 +41,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: robimarko/openwrt
-          ref: ipq807x-5.15
+          ref: ipq807x-5.15-pr
       - name: Update and install feeds
         run: |
           ./scripts/feeds update -a
@@ -56,7 +56,7 @@ jobs:
           echo "CONFIG_TARGET_ROOTFS_INITRAMFS=y\n" >> .config
           echo "CONFIG_TARGET_INITRAMFS_COMPRESSION_ZSTD=y\n" >> .config
           echo "CONFIG_PACKAGE_luci=y\n" >> .config
-          echo "CONFIG_PACKAGE_nss-firmware-ipq8074=y\n" >> .config
+          #echo "CONFIG_PACKAGE_nss-firmware-ipq8074=y\n" >> .config
           echo "CONFIG_PACKAGE_kmod-qca-nss-dp=y" >> .config
           #echo "CONFIG_PACKAGE_kmod-qca-nss-drv-pppoe=y\n" >> .config
           #echo "CONFIG_PACKAGE_kmod-qca-nss-ecm=y\n" >> .config
