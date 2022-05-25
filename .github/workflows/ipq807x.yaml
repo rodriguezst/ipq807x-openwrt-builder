@@ -13,8 +13,8 @@ jobs:
         run: |
           curl -sL "https://api.github.com/repos/$REMOTE_REPOSITORY/commits?sha=$REMOTE_BRANCH&per_page=1" | jq -r '[.[]][0]' > commit.json
         env:
-          REMOTE_REPOSITORY: robimarko/openwrt
-          REMOTE_BRANCH: ipq807x-5.15-pr
+          REMOTE_REPOSITORY: ansuel/openwrt
+          REMOTE_BRANCH: ipq807x-5.15-pr-wifi-offload
       - name: Calculate hours since last commit
         id: calc
         run: |
@@ -40,8 +40,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          repository: robimarko/openwrt
-          ref: ipq807x-5.15-pr
+          repository: ansuel/openwrt
+          ref: ipq807x-5.15-pr-wifi-offload
       - name: Update and install feeds
         run: |
           ./scripts/feeds update -a
@@ -119,7 +119,6 @@ jobs:
         with:
           repo_token: '${{ secrets.GITHUB_TOKEN }}'
           prerelease: true
-          title: 'Updated prebuilt images (${{ env.BUILDINFO }})'
-          automatic_release_tag: ipq807x-5.15-latest
+          title: '[WIP_WIFI_OFFLOAD] Updated prebuilt images (${{ env.BUILDINFO }})'
+          automatic_release_tag: ipq807x-5.15-wifi_offload
           files: bin/targets/ipq807x/generic/*
-     
