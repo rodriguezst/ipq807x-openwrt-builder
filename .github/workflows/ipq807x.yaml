@@ -70,6 +70,9 @@ jobs:
           echo "CONFIG_PACKAGE_wpad-basic-wolfssl=m\n" >> .config
           echo "CONFIG_PACKAGE_wpad-wolfssl=y\n" >> .config
           echo "CONFIG_PACKAGE_gre=y\n" >> .config
+          echo "CONFIG_PACKAGE_luci-proto-gre=y\n" >> .config
+          echo "CONFIG_PACKAGE_vxlan=y\n" >> .config
+          echo "CONFIG_PACKAGE_luci-proto-vxlan=y\n" >> .config
           make defconfig
       - name: Enable WiFi on default config
         run: |
