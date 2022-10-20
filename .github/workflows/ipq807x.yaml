@@ -56,21 +56,15 @@ jobs:
           echo "CONFIG_TARGET_ROOTFS_INITRAMFS=y\n" >> .config
           echo "CONFIG_TARGET_INITRAMFS_COMPRESSION_ZSTD=y\n" >> .config
           echo "CONFIG_PACKAGE_luci=y\n" >> .config
-          #echo "CONFIG_PACKAGE_nss-firmware-ipq8074=y\n" >> .config
-          echo "CONFIG_PACKAGE_kmod-qca-nss-dp=y" >> .config
-          #echo "CONFIG_PACKAGE_kmod-qca-nss-drv-pppoe=y\n" >> .config
-          #echo "CONFIG_PACKAGE_kmod-qca-nss-ecm=y\n" >> .config
-          #echo "CONFIG_PACKAGE_kmod-qca-nss-drv-bridge-mgr=y\n" >> .config
+          echo "CONFIG_PACKAGE_wpad-basic-wolfssl=m\n" >> .config
+          echo "CONFIG_PACKAGE_wpad-wolfssl=y\n" >> .config
+          #### CUSTOM PACKAGES HERE ###
+          echo "CONFIG_PACKAGE_openvpn-openssl=y" >> .config
+          echo "CONFIG_PACKAGE_wireguard=y" >> .config
           echo "CONFIG_PACKAGE_luci-app-openvpn=y" >> .config
           echo "CONFIG_PACKAGE_luci-app-wireguard=y" >> .config
           echo "CONFIG_PACKAGE_luci-app-ddns=y" >> .config
-          echo "CONFIG_PACKAGE_openvpn-openssl=y" >> .config
-          echo "CONFIG_PACKAGE_wireguard=y" >> .config
           echo "CONFIG_PACKAGE_qrencode=y" >> .config
-          echo "CONFIG_PACKAGE_wpad-basic-wolfssl=m\n" >> .config
-          echo "CONFIG_PACKAGE_wpad-wolfssl=y\n" >> .config
-          echo "CONFIG_PACKAGE_libwolfssl=n\n" >> .config
-          echo "CONFIG_PACKAGE_libwolfssl-cpu-crypto=y\n" >> .config
           echo "CONFIG_PACKAGE_gre=y\n" >> .config
           echo "CONFIG_PACKAGE_luci-proto-gre=y\n" >> .config
           make defconfig
