@@ -55,7 +55,7 @@ jobs:
           echo "CONFIG_TARGET_PER_DEVICE_ROOTFS=y\n" >> .config
           echo "CONFIG_TARGET_ROOTFS_INITRAMFS=y\n" >> .config
           echo "CONFIG_TARGET_INITRAMFS_COMPRESSION_ZSTD=y\n" >> .config
-          echo "CONFIG_PACKAGE_luci=y\n" >> . config
+          echo "CONFIG_PACKAGE_luci=y\n" >> .config
           echo "CONFIG_PACKAGE_kmod-qca-nss-dp=y\n" >> .config
           echo "CONFIG_PACKAGE_wpad-basic-wolfssl=m\n" >> .config
           echo "CONFIG_PACKAGE_wpad-wolfssl=y\n" >> .config
