@@ -42,6 +42,9 @@ jobs:
         with:
           repository: robimarko/openwrt
           ref: 858a6ed7fa173b4d439d51f69b7e5c8e9865b6b1
+      - name: Fix xxd package URL
+        run: |
+          sed -i 's/http:/https:/g' tools/xxd/Makefile
       - name: Update and install feeds
         run: |
           ./scripts/feeds update -a
