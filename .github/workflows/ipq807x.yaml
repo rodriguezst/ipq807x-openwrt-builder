@@ -68,6 +68,7 @@ jobs:
           echo "CONFIG_PACKAGE_wpad-basic-wolfssl=m\n" >> .config
           echo "CONFIG_PACKAGE_wpad-wolfssl=y\n" >> .config
           #### CUSTOM PACKAGES HERE ###
+          echo "CONFIG_ALL_KMODS=y" >> .config
           echo "CONFIG_PACKAGE_openvpn-openssl=y" >> .config
           echo "CONFIG_PACKAGE_wireguard=y" >> .config
           echo "CONFIG_PACKAGE_luci-app-openvpn=y" >> .config
@@ -99,12 +100,14 @@ jobs:
           make -j$(nproc) V=s || \
           make V=s
       - name: TAR output
-        run: tar -cvf ipq807xx-images.tar bin/targets/ipq807x/generic
+        run: |
+          tar -cvf ipq807xx-images.tar bin/targets/ipq807x/generic
+          tar -cvf ipq807xx-packages.tar bin/packages
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: ipq807x-images
-          path: ipq807xx-images.tar
+          path: ipq807xx-*.tar
   release:
     name: Upload artifacts as release
     needs: build
@@ -128,5 +131,7 @@ jobs:
           prerelease: true
           title: 'Updated prebuilt images (${{ env.BUILDINFO }})'
           automatic_release_tag: ipq807x-5.15-r0-a6d607b
-          files: bin/targets/ipq807x/generic/*
+          files: |
+            bin/targets/ipq807x/generic/*
+            ipq807xx-packages.tar
      
